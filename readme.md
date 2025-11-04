@@ -39,11 +39,11 @@ O software possui:
 
 * **Crie e ative um ambiente virtual**  
 
-  # Para Windows
+  **Para Windows**
     python -m venv venv
     .\venv\Scripts\activate
 
-  # Para macOS/Linux
+   **Para macOS/Linux**
     python3 -m venv venv
     source venv/bin/activate
  

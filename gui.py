@@ -10,6 +10,7 @@ from PyQt6.QtCore import Qt
 from cifras.cesar import cifrar as cifrar_cesar, decifrar as decifrar_cesar
 from cifras.monoalfabetica import cifrar as cifrar_mono, decifrar as decifrar_mono
 from cifras.playfair import cifrar as cifrar_playfair, decifrar as decifrar_playfair
+from cifras.hill import cifrar as cifrar_hill, decifrar as decifrar_hill
 
 class CriptoApp(QWidget):
     def __init__(self):
@@ -27,10 +28,12 @@ class CriptoApp(QWidget):
         tab_cesar = self.criar_tab_cesar()
         tab_mono = self.criar_tab_monoalfabetica()
         tab_playfair = self.criar_tab_playfair()
+        tab_hill = self.criar_tab_hill()
         
         self.tabs.addTab(tab_cesar, "Cifra de César")
         self.tabs.addTab(tab_mono, "Cifra Monoalfabética")
         self.tabs.addTab(tab_playfair, "Cifra de Playfair")
+        self.tabs.addTab(tab_hill, "Cifra de Hill")
         
         layout_principal.addWidget(self.tabs)
         self.setLayout(layout_principal)
@@ -175,7 +178,7 @@ class CriptoApp(QWidget):
         
         layout_chave = QFormLayout()
         self.chave_playfair_input = QLineEdit()
-        self.chave_playfair_input.setPlaceholderText("Digite a palavra-chave)")
+        self.chave_playfair_input.setPlaceholderText("Digite a palavra-chave (ex: MONARQUIA)")
         layout_chave.addRow(QLabel("Chave:"), self.chave_playfair_input)
         
         layout_tab.addLayout(layout_chave)
@@ -233,6 +236,80 @@ class CriptoApp(QWidget):
             self.texto_output_playfair.setText(texto_decifrado)
         except ValueError as ve:
             self.mostrar_erro(f"Erro na chave: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def criar_tab_hill(self):
+        widget_tab = QWidget()
+        layout_tab = QVBoxLayout(widget_tab)
+        
+        layout_form = QFormLayout()
+        
+        self.m_hill_input = QLineEdit()
+        self.m_hill_input.setPlaceholderText("Tamanho do bloco (ex: 2)")
+        layout_form.addRow(QLabel("Bloco (m):"), self.m_hill_input)
+        
+        self.chave_hill_input = QLineEdit()
+        self.chave_hill_input.setPlaceholderText("ex: 7 8 11 11")
+        layout_form.addRow(QLabel("Chave (números):"), self.chave_hill_input)
+        
+        layout_tab.addLayout(layout_form)
+
+        self.texto_input_hill = QTextEdit()
+        self.texto_input_hill.setPlaceholderText("Digite o texto aqui...")
+        layout_tab.addWidget(QLabel("Texto:"))
+        layout_tab.addWidget(self.texto_input_hill)
+
+        self.texto_output_hill = QTextEdit()
+        self.texto_output_hill.setPlaceholderText("O resultado aparecerá aqui...")
+        self.texto_output_hill.setReadOnly(True)
+        layout_tab.addWidget(QLabel("Texto Cifrado / Decifrado:"))
+        layout_tab.addWidget(self.texto_output_hill)
+
+        botoes_layout = QHBoxLayout()
+        cifrar_btn = QPushButton("Cifrar")
+        decifrar_btn = QPushButton("Decifrar")
+        
+        botoes_layout.addWidget(cifrar_btn)
+        botoes_layout.addWidget(decifrar_btn)
+        layout_tab.addLayout(botoes_layout)
+
+        cifrar_btn.clicked.connect(self.on_cifrar_hill)
+        decifrar_btn.clicked.connect(self.on_decifrar_hill)
+        
+        return widget_tab
+
+    def on_cifrar_hill(self):
+        try:
+            texto = self.texto_input_hill.toPlainText()
+            chave = self.chave_hill_input.text()
+            m = self.m_hill_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio.")
+                return
+                
+            texto_cifrado = cifrar_hill(texto, chave, m)
+            self.texto_output_hill.setText(texto_cifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro na chave ou 'm': {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def on_decifrar_hill(self):
+        try:
+            texto = self.texto_input_hill.toPlainText()
+            chave = self.chave_hill_input.text()
+            m = self.m_hill_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio para decifrar.")
+                return
+
+            texto_decifrado = decifrar_hill(texto, chave, m)
+            self.texto_output_hill.setText(texto_decifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro na chave ou 'm': {ve}")
         except Exception as e:
             self.mostrar_erro(f"Erro inesperado: {e}")
 
