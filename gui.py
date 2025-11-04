@@ -8,6 +8,7 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 
 from cifras.cesar import cifrar as cifrar_cesar, decifrar as decifrar_cesar
+from cifras.monoalfabetica import cifrar as cifrar_mono, decifrar as decifrar_mono
 
 class CriptoApp(QWidget):
     def __init__(self):
@@ -23,8 +24,10 @@ class CriptoApp(QWidget):
         self.tabs = QTabWidget()
         
         tab_cesar = self.criar_tab_cesar()
+        tab_mono = self.criar_tab_monoalfabetica()
         
         self.tabs.addTab(tab_cesar, "Cifra de César")
+        self.tabs.addTab(tab_mono, "Cifra Monoalfabética")
         
         layout_principal.addWidget(self.tabs)
         self.setLayout(layout_principal)
@@ -40,33 +43,33 @@ class CriptoApp(QWidget):
         
         layout_tab.addLayout(layout_chave)
 
-        self.texto_input = QTextEdit()
-        self.texto_input.setPlaceholderText("Digite o texto aqui...")
+        self.texto_input_cesar = QTextEdit()
+        self.texto_input_cesar.setPlaceholderText("Digite o texto aqui...")
         layout_tab.addWidget(QLabel("Texto:"))
-        layout_tab.addWidget(self.texto_input)
+        layout_tab.addWidget(self.texto_input_cesar)
 
-        self.texto_processado_output = QTextEdit()
-        self.texto_processado_output.setPlaceholderText("O resultado aparecerá aqui...")
-        self.texto_processado_output.setReadOnly(True)
+        self.texto_output_cesar = QTextEdit()
+        self.texto_output_cesar.setPlaceholderText("O resultado aparecerá aqui...")
+        self.texto_output_cesar.setReadOnly(True)
         layout_tab.addWidget(QLabel("Texto Cifrado / Decifrado:"))
-        layout_tab.addWidget(self.texto_processado_output)
+        layout_tab.addWidget(self.texto_output_cesar)
 
         botoes_layout = QHBoxLayout()
-        self.cifrar_btn = QPushButton("Cifrar")
-        self.decifrar_btn = QPushButton("Decifrar")
+        cifrar_btn = QPushButton("Cifrar")
+        decifrar_btn = QPushButton("Decifrar")
         
-        botoes_layout.addWidget(self.cifrar_btn)
-        botoes_layout.addWidget(self.decifrar_btn)
+        botoes_layout.addWidget(cifrar_btn)
+        botoes_layout.addWidget(decifrar_btn)
         layout_tab.addLayout(botoes_layout)
 
-        self.cifrar_btn.clicked.connect(self.on_cifrar_cesar)
-        self.decifrar_btn.clicked.connect(self.on_decifrar_cesar)
+        cifrar_btn.clicked.connect(self.on_cifrar_cesar)
+        decifrar_btn.clicked.connect(self.on_decifrar_cesar)
         
         return widget_tab
 
     def on_cifrar_cesar(self):
         try:
-            texto = self.texto_input.toPlainText()
+            texto = self.texto_input_cesar.toPlainText()
             chave = self.chave_cesar_input.text()
             
             if not texto:
@@ -74,8 +77,7 @@ class CriptoApp(QWidget):
                 return
                 
             texto_cifrado = cifrar_cesar(texto, chave)
-            self.texto_processado_output.setText(texto_cifrado)
-            
+            self.texto_output_cesar.setText(texto_cifrado)
         except ValueError as ve:
             self.mostrar_erro(f"Erro na chave: {ve}")
         except Exception as e:
@@ -83,7 +85,7 @@ class CriptoApp(QWidget):
 
     def on_decifrar_cesar(self):
         try:
-            texto = self.texto_input.toPlainText()
+            texto = self.texto_input_cesar.toPlainText()
             chave = self.chave_cesar_input.text()
             
             if not texto:
@@ -91,8 +93,74 @@ class CriptoApp(QWidget):
                 return
 
             texto_decifrado = decifrar_cesar(texto, chave)
-            self.texto_processado_output.setText(texto_decifrado)
+            self.texto_output_cesar.setText(texto_decifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro na chave: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
 
+    def criar_tab_monoalfabetica(self):
+        widget_tab = QWidget()
+        layout_tab = QVBoxLayout(widget_tab)
+        
+        layout_chave = QFormLayout()
+        self.chave_mono_input = QLineEdit()
+        self.chave_mono_input.setPlaceholderText("Digite o alfabeto embaralhado (26 letras únicas)")
+        layout_chave.addRow(QLabel("Chave (A-Z):"), self.chave_mono_input)
+        
+        layout_tab.addLayout(layout_chave)
+
+        self.texto_input_mono = QTextEdit()
+        self.texto_input_mono.setPlaceholderText("Digite o texto aqui...")
+        layout_tab.addWidget(QLabel("Texto:"))
+        layout_tab.addWidget(self.texto_input_mono)
+
+        self.texto_output_mono = QTextEdit()
+        self.texto_output_mono.setPlaceholderText("O resultado aparecerá aqui...")
+        self.texto_output_mono.setReadOnly(True)
+        layout_tab.addWidget(QLabel("Texto Cifrado / Decifrado:"))
+        layout_tab.addWidget(self.texto_output_mono)
+
+        botoes_layout = QHBoxLayout()
+        cifrar_btn = QPushButton("Cifrar")
+        decifrar_btn = QPushButton("Decifrar")
+        
+        botoes_layout.addWidget(cifrar_btn)
+        botoes_layout.addWidget(decifrar_btn)
+        layout_tab.addLayout(botoes_layout)
+
+        cifrar_btn.clicked.connect(self.on_cifrar_mono)
+        decifrar_btn.clicked.connect(self.on_decifrar_mono)
+        
+        return widget_tab
+
+    def on_cifrar_mono(self):
+        try:
+            texto = self.texto_input_mono.toPlainText()
+            chave = self.chave_mono_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio.")
+                return
+                
+            texto_cifrado = cifrar_mono(texto, chave)
+            self.texto_output_mono.setText(texto_cifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro na chave: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def on_decifrar_mono(self):
+        try:
+            texto = self.texto_input_mono.toPlainText()
+            chave = self.chave_mono_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio para decifrar.")
+                return
+
+            texto_decifrado = decifrar_mono(texto, chave)
+            self.texto_output_mono.setText(texto_decifrado)
         except ValueError as ve:
             self.mostrar_erro(f"Erro na chave: {ve}")
         except Exception as e:
