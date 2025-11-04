@@ -37,6 +37,16 @@ O software possui:
 
   git clone https://github.com/keilarobertasv/Cifras-classicas.git
 
+* **Crie e ative um ambiente virtual**  
+
+  # Para Windows
+    python -m venv venv
+    .\venv\Scripts\activate
+
+  # Para macOS/Linux
+    python3 -m venv venv
+    source venv/bin/activate
+ 
 * **Instale as dependências**  
   
   pip install -r requirements.txt
