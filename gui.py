@@ -16,6 +16,7 @@ from cifras.vernam import cifrar as cifrar_vernam, decifrar as decifrar_vernam
 from cifras.otp import cifrar as cifrar_otp, decifrar as decifrar_otp
 from cifras.railfence import cifrar as cifrar_railfence, decifrar as decifrar_railfence
 from cifras.transcolunas import cifrar as cifrar_colunar, decifrar as decifrar_colunar
+from cifras.doubletrans import cifrar as cifrar_doubletrans, decifrar as decifrar_doubletrans
 
 class CriptoApp(QWidget):
     def __init__(self):
@@ -39,6 +40,7 @@ class CriptoApp(QWidget):
         tab_otp = self.criar_tab_otp()
         tab_railfence = self.criar_tab_railfence()
         tab_colunar = self.criar_tab_colunar()
+        tab_doubletrans = self.criar_tab_doubletrans()
         
         self.tabs.addTab(tab_cesar, "Cifra de César")
         self.tabs.addTab(tab_mono, "Cifra Monoalfabética")
@@ -49,6 +51,7 @@ class CriptoApp(QWidget):
         self.tabs.addTab(tab_otp, "One-Time Pad")
         self.tabs.addTab(tab_railfence, "Rail Fence")
         self.tabs.addTab(tab_colunar, "Transposição Colunar")
+        self.tabs.addTab(tab_doubletrans, "Dupla Transposição")
         
         layout_principal.addWidget(self.tabs)
         self.setLayout(layout_principal)
@@ -660,6 +663,79 @@ class CriptoApp(QWidget):
             self.texto_output_colunar.setText(texto_decifrado)
         except ValueError as ve:
             self.mostrar_erro(f"Erro na chave: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def criar_tab_doubletrans(self):
+        widget_tab = QWidget()
+        layout_tab = QVBoxLayout(widget_tab)
+        
+        layout_chave = QFormLayout()
+        self.chave_doubletrans_1_input = QLineEdit()
+        self.chave_doubletrans_1_input.setPlaceholderText("Chave 1 (letras únicas)")
+        layout_chave.addRow(QLabel("Chave 1:"), self.chave_doubletrans_1_input)
+        
+        self.chave_doubletrans_2_input = QLineEdit()
+        self.chave_doubletrans_2_input.setPlaceholderText("Chave 2 (letras únicas)")
+        layout_chave.addRow(QLabel("Chave 2:"), self.chave_doubletrans_2_input)
+        
+        layout_tab.addLayout(layout_chave)
+
+        self.texto_input_doubletrans = QTextEdit()
+        self.texto_input_doubletrans.setPlaceholderText("Digite o texto aqui...")
+        layout_tab.addWidget(QLabel("Texto:"))
+        layout_tab.addWidget(self.texto_input_doubletrans)
+
+        self.texto_output_doubletrans = QTextEdit()
+        self.texto_output_doubletrans.setPlaceholderText("O resultado aparecerá aqui...")
+        self.texto_output_doubletrans.setReadOnly(True)
+        layout_tab.addWidget(QLabel("Texto Cifrado / Decifrado:"))
+        layout_tab.addWidget(self.texto_output_doubletrans)
+
+        botoes_layout = QHBoxLayout()
+        cifrar_btn = QPushButton("Cifrar")
+        decifrar_btn = QPushButton("Decifrar")
+        
+        botoes_layout.addWidget(cifrar_btn)
+        botoes_layout.addWidget(decifrar_btn)
+        layout_tab.addLayout(botoes_layout)
+
+        cifrar_btn.clicked.connect(self.on_cifrar_doubletrans)
+        decifrar_btn.clicked.connect(self.on_decifrar_doubletrans)
+        
+        return widget_tab
+
+    def on_cifrar_doubletrans(self):
+        try:
+            texto = self.texto_input_doubletrans.toPlainText()
+            chave1 = self.chave_doubletrans_1_input.text()
+            chave2 = self.chave_doubletrans_2_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio.")
+                return
+                
+            texto_cifrado = cifrar_doubletrans(texto, chave1, chave2)
+            self.texto_output_doubletrans.setText(texto_cifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro nas chaves: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def on_decifrar_doubletrans(self):
+        try:
+            texto = self.texto_input_doubletrans.toPlainText()
+            chave1 = self.chave_doubletrans_1_input.text()
+            chave2 = self.chave_doubletrans_2_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio para decifrar.")
+                return
+
+            texto_decifrado = decifrar_doubletrans(texto, chave1, chave2)
+            self.texto_output_doubletrans.setText(texto_decifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro nas chaves: {ve}")
         except Exception as e:
             self.mostrar_erro(f"Erro inesperado: {e}")
 
