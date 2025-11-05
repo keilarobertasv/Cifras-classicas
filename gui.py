@@ -11,6 +11,7 @@ from cifras.cesar import cifrar as cifrar_cesar, decifrar as decifrar_cesar
 from cifras.monoalfabetica import cifrar as cifrar_mono, decifrar as decifrar_mono
 from cifras.playfair import cifrar as cifrar_playfair, decifrar as decifrar_playfair
 from cifras.hill import cifrar as cifrar_hill, decifrar as decifrar_hill
+from cifras.vigenere import cifrar as cifrar_vigenere, decifrar as decifrar_vigenere
 
 class CriptoApp(QWidget):
     def __init__(self):
@@ -29,11 +30,13 @@ class CriptoApp(QWidget):
         tab_mono = self.criar_tab_monoalfabetica()
         tab_playfair = self.criar_tab_playfair()
         tab_hill = self.criar_tab_hill()
+        tab_vigenere = self.criar_tab_vigenere()
         
         self.tabs.addTab(tab_cesar, "Cifra de César")
         self.tabs.addTab(tab_mono, "Cifra Monoalfabética")
         self.tabs.addTab(tab_playfair, "Cifra de Playfair")
         self.tabs.addTab(tab_hill, "Cifra de Hill")
+        self.tabs.addTab(tab_vigenere, "Cifra de Vigenère")
         
         layout_principal.addWidget(self.tabs)
         self.setLayout(layout_principal)
@@ -44,7 +47,7 @@ class CriptoApp(QWidget):
         
         layout_chave = QFormLayout()
         self.chave_cesar_input = QLineEdit()
-        self.chave_cesar_input.setPlaceholderText("Digite a chave (ex: 3)")
+        self.chave_cesar_input.setPlaceholderText("Digite a chave")
         layout_chave.addRow(QLabel("Chave (1-25):"), self.chave_cesar_input)
         
         layout_tab.addLayout(layout_chave)
@@ -178,7 +181,7 @@ class CriptoApp(QWidget):
         
         layout_chave = QFormLayout()
         self.chave_playfair_input = QLineEdit()
-        self.chave_playfair_input.setPlaceholderText("Digite a palavra-chave (ex: MONARQUIA)")
+        self.chave_playfair_input.setPlaceholderText("Digite a palavra-chave")
         layout_chave.addRow(QLabel("Chave:"), self.chave_playfair_input)
         
         layout_tab.addLayout(layout_chave)
@@ -246,11 +249,10 @@ class CriptoApp(QWidget):
         layout_form = QFormLayout()
         
         self.m_hill_input = QLineEdit()
-        self.m_hill_input.setPlaceholderText("Tamanho do bloco (ex: 2)")
+        self.m_hill_input.setPlaceholderText("Tamanho do bloco")
         layout_form.addRow(QLabel("Bloco (m):"), self.m_hill_input)
         
         self.chave_hill_input = QLineEdit()
-        self.chave_hill_input.setPlaceholderText("ex: 7 8 11 11")
         layout_form.addRow(QLabel("Chave (números):"), self.chave_hill_input)
         
         layout_tab.addLayout(layout_form)
@@ -310,6 +312,73 @@ class CriptoApp(QWidget):
             self.texto_output_hill.setText(texto_decifrado)
         except ValueError as ve:
             self.mostrar_erro(f"Erro na chave ou 'm': {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def criar_tab_vigenere(self):
+        widget_tab = QWidget()
+        layout_tab = QVBoxLayout(widget_tab)
+        
+        layout_chave = QFormLayout()
+        self.chave_vigenere_input = QLineEdit()
+        self.chave_vigenere_input.setPlaceholderText("Digite a palavra-chave")
+        layout_chave.addRow(QLabel("Chave:"), self.chave_vigenere_input)
+        
+        layout_tab.addLayout(layout_chave)
+
+        self.texto_input_vigenere = QTextEdit()
+        self.texto_input_vigenere.setPlaceholderText("Digite o texto aqui...")
+        layout_tab.addWidget(QLabel("Texto:"))
+        layout_tab.addWidget(self.texto_input_vigenere)
+
+        self.texto_output_vigenere = QTextEdit()
+        self.texto_output_vigenere.setPlaceholderText("O resultado aparecerá aqui...")
+        self.texto_output_vigenere.setReadOnly(True)
+        layout_tab.addWidget(QLabel("Texto Cifrado / Decifrado:"))
+        layout_tab.addWidget(self.texto_output_vigenere)
+
+        botoes_layout = QHBoxLayout()
+        cifrar_btn = QPushButton("Cifrar")
+        decifrar_btn = QPushButton("Decifrar")
+        
+        botoes_layout.addWidget(cifrar_btn)
+        botoes_layout.addWidget(decifrar_btn)
+        layout_tab.addLayout(botoes_layout)
+
+        cifrar_btn.clicked.connect(self.on_cifrar_vigenere)
+        decifrar_btn.clicked.connect(self.on_decifrar_vigenere)
+        
+        return widget_tab
+
+    def on_cifrar_vigenere(self):
+        try:
+            texto = self.texto_input_vigenere.toPlainText()
+            chave = self.chave_vigenere_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio.")
+                return
+                
+            texto_cifrado = cifrar_vigenere(texto, chave)
+            self.texto_output_vigenere.setText(texto_cifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro na chave: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def on_decifrar_vigenere(self):
+        try:
+            texto = self.texto_input_vigenere.toPlainText()
+            chave = self.chave_vigenere_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio para decifrar.")
+                return
+
+            texto_decifrado = decifrar_vigenere(texto, chave)
+            self.texto_output_vigenere.setText(texto_decifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro na chave: {ve}")
         except Exception as e:
             self.mostrar_erro(f"Erro inesperado: {e}")
 

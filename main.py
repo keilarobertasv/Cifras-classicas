@@ -7,7 +7,7 @@ def load_stylesheet(file_name):
         return f.read()
 
 def main():
-    app = QApplication(sys.argv)
+    app = QApplication(sys.argv)    
     
     try:
         stylesheet = load_stylesheet("style.qss")
