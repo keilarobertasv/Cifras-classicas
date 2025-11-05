@@ -12,6 +12,7 @@ from cifras.monoalfabetica import cifrar as cifrar_mono, decifrar as decifrar_mo
 from cifras.playfair import cifrar as cifrar_playfair, decifrar as decifrar_playfair
 from cifras.hill import cifrar as cifrar_hill, decifrar as decifrar_hill
 from cifras.vigenere import cifrar as cifrar_vigenere, decifrar as decifrar_vigenere
+from cifras.vernam import cifrar as cifrar_vernam, decifrar as decifrar_vernam
 
 class CriptoApp(QWidget):
     def __init__(self):
@@ -31,12 +32,14 @@ class CriptoApp(QWidget):
         tab_playfair = self.criar_tab_playfair()
         tab_hill = self.criar_tab_hill()
         tab_vigenere = self.criar_tab_vigenere()
+        tab_vernam = self.criar_tab_vernam()
         
         self.tabs.addTab(tab_cesar, "Cifra de César")
         self.tabs.addTab(tab_mono, "Cifra Monoalfabética")
         self.tabs.addTab(tab_playfair, "Cifra de Playfair")
         self.tabs.addTab(tab_hill, "Cifra de Hill")
         self.tabs.addTab(tab_vigenere, "Cifra de Vigenère")
+        self.tabs.addTab(tab_vernam, "Cifra de Vernam")
         
         layout_principal.addWidget(self.tabs)
         self.setLayout(layout_principal)
@@ -114,7 +117,7 @@ class CriptoApp(QWidget):
         
         layout_chave = QFormLayout()
         self.chave_mono_input = QLineEdit()
-        self.chave_mono_input.setPlaceholderText("Digite o alfabeto embaralhado (26 letras únicas)")
+        self.chave_mono_input.setPlaceholderText("Alfabeto de 26 letras únicas")
         layout_chave.addRow(QLabel("Chave (A-Z):"), self.chave_mono_input)
         
         layout_tab.addLayout(layout_chave)
@@ -253,6 +256,7 @@ class CriptoApp(QWidget):
         layout_form.addRow(QLabel("Bloco (m):"), self.m_hill_input)
         
         self.chave_hill_input = QLineEdit()
+        self.chave_hill_input.setPlaceholderText("Números separados por espaço")
         layout_form.addRow(QLabel("Chave (números):"), self.chave_hill_input)
         
         layout_tab.addLayout(layout_form)
@@ -377,6 +381,73 @@ class CriptoApp(QWidget):
 
             texto_decifrado = decifrar_vigenere(texto, chave)
             self.texto_output_vigenere.setText(texto_decifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro na chave: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def criar_tab_vernam(self):
+        widget_tab = QWidget()
+        layout_tab = QVBoxLayout(widget_tab)
+        
+        layout_chave = QFormLayout()
+        self.chave_vernam_input = QLineEdit()
+        self.chave_vernam_input.setPlaceholderText("Digite a chave")
+        layout_chave.addRow(QLabel("Chave:"), self.chave_vernam_input)
+        
+        layout_tab.addLayout(layout_chave)
+
+        self.texto_input_vernam = QTextEdit()
+        self.texto_input_vernam.setPlaceholderText("Digite o texto aqui...")
+        layout_tab.addWidget(QLabel("Texto:"))
+        layout_tab.addWidget(self.texto_input_vernam)
+
+        self.texto_output_vernam = QTextEdit()
+        self.texto_output_vernam.setPlaceholderText("O resultado aparecerá aqui...")
+        self.texto_output_vernam.setReadOnly(True)
+        layout_tab.addWidget(QLabel("Texto Cifrado / Decifrado:"))
+        layout_tab.addWidget(self.texto_output_vernam)
+
+        botoes_layout = QHBoxLayout()
+        cifrar_btn = QPushButton("Cifrar")
+        decifrar_btn = QPushButton("Decifrar")
+        
+        botoes_layout.addWidget(cifrar_btn)
+        botoes_layout.addWidget(decifrar_btn)
+        layout_tab.addLayout(botoes_layout)
+
+        cifrar_btn.clicked.connect(self.on_cifrar_vernam)
+        decifrar_btn.clicked.connect(self.on_decifrar_vernam)
+        
+        return widget_tab
+
+    def on_cifrar_vernam(self):
+        try:
+            texto = self.texto_input_vernam.toPlainText()
+            chave = self.chave_vernam_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio.")
+                return
+                
+            texto_cifrado = cifrar_vernam(texto, chave)
+            self.texto_output_vernam.setText(texto_cifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro na chave: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def on_decifrar_vernam(self):
+        try:
+            texto = self.texto_input_vernam.toPlainText()
+            chave = self.chave_vernam_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio para decifrar.")
+                return
+
+            texto_decifrado = decifrar_vernam(texto, chave)
+            self.texto_output_vernam.setText(texto_decifrado)
         except ValueError as ve:
             self.mostrar_erro(f"Erro na chave: {ve}")
         except Exception as e:
