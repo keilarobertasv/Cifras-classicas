@@ -13,6 +13,7 @@ from cifras.playfair import cifrar as cifrar_playfair, decifrar as decifrar_play
 from cifras.hill import cifrar as cifrar_hill, decifrar as decifrar_hill
 from cifras.vigenere import cifrar as cifrar_vigenere, decifrar as decifrar_vigenere
 from cifras.vernam import cifrar as cifrar_vernam, decifrar as decifrar_vernam
+from cifras.otp import cifrar as cifrar_otp, decifrar as decifrar_otp
 
 class CriptoApp(QWidget):
     def __init__(self):
@@ -33,6 +34,7 @@ class CriptoApp(QWidget):
         tab_hill = self.criar_tab_hill()
         tab_vigenere = self.criar_tab_vigenere()
         tab_vernam = self.criar_tab_vernam()
+        tab_otp = self.criar_tab_otp()
         
         self.tabs.addTab(tab_cesar, "Cifra de César")
         self.tabs.addTab(tab_mono, "Cifra Monoalfabética")
@@ -40,6 +42,7 @@ class CriptoApp(QWidget):
         self.tabs.addTab(tab_hill, "Cifra de Hill")
         self.tabs.addTab(tab_vigenere, "Cifra de Vigenère")
         self.tabs.addTab(tab_vernam, "Cifra de Vernam")
+        self.tabs.addTab(tab_otp, "One-Time Pad")
         
         layout_principal.addWidget(self.tabs)
         self.setLayout(layout_principal)
@@ -448,6 +451,73 @@ class CriptoApp(QWidget):
 
             texto_decifrado = decifrar_vernam(texto, chave)
             self.texto_output_vernam.setText(texto_decifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro na chave: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def criar_tab_otp(self):
+        widget_tab = QWidget()
+        layout_tab = QVBoxLayout(widget_tab)
+        
+        layout_chave = QFormLayout()
+        self.chave_otp_input = QLineEdit()
+        self.chave_otp_input.setPlaceholderText("Digite a chave (tão longa quanto o texto)")
+        layout_chave.addRow(QLabel("Chave:"), self.chave_otp_input)
+        
+        layout_tab.addLayout(layout_chave)
+
+        self.texto_input_otp = QTextEdit()
+        self.texto_input_otp.setPlaceholderText("Digite o texto aqui...")
+        layout_tab.addWidget(QLabel("Texto:"))
+        layout_tab.addWidget(self.texto_input_otp)
+
+        self.texto_output_otp = QTextEdit()
+        self.texto_output_otp.setPlaceholderText("O resultado aparecerá aqui...")
+        self.texto_output_otp.setReadOnly(True)
+        layout_tab.addWidget(QLabel("Texto Cifrado / Decifrado:"))
+        layout_tab.addWidget(self.texto_output_otp)
+
+        botoes_layout = QHBoxLayout()
+        cifrar_btn = QPushButton("Cifrar")
+        decifrar_btn = QPushButton("Decifrar")
+        
+        botoes_layout.addWidget(cifrar_btn)
+        botoes_layout.addWidget(decifrar_btn)
+        layout_tab.addLayout(botoes_layout)
+
+        cifrar_btn.clicked.connect(self.on_cifrar_otp)
+        decifrar_btn.clicked.connect(self.on_decifrar_otp)
+        
+        return widget_tab
+
+    def on_cifrar_otp(self):
+        try:
+            texto = self.texto_input_otp.toPlainText()
+            chave = self.chave_otp_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio.")
+                return
+                
+            texto_cifrado = cifrar_otp(texto, chave)
+            self.texto_output_otp.setText(texto_cifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro na chave: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def on_decifrar_otp(self):
+        try:
+            texto = self.texto_input_otp.toPlainText()
+            chave = self.chave_otp_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio para decifrar.")
+                return
+
+            texto_decifrado = decifrar_otp(texto, chave)
+            self.texto_output_otp.setText(texto_decifrado)
         except ValueError as ve:
             self.mostrar_erro(f"Erro na chave: {ve}")
         except Exception as e:
