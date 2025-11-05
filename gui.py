@@ -14,6 +14,7 @@ from cifras.hill import cifrar as cifrar_hill, decifrar as decifrar_hill
 from cifras.vigenere import cifrar as cifrar_vigenere, decifrar as decifrar_vigenere
 from cifras.vernam import cifrar as cifrar_vernam, decifrar as decifrar_vernam
 from cifras.otp import cifrar as cifrar_otp, decifrar as decifrar_otp
+from cifras.railfence import cifrar as cifrar_railfence, decifrar as decifrar_railfence
 
 class CriptoApp(QWidget):
     def __init__(self):
@@ -35,6 +36,7 @@ class CriptoApp(QWidget):
         tab_vigenere = self.criar_tab_vigenere()
         tab_vernam = self.criar_tab_vernam()
         tab_otp = self.criar_tab_otp()
+        tab_railfence = self.criar_tab_railfence()
         
         self.tabs.addTab(tab_cesar, "Cifra de César")
         self.tabs.addTab(tab_mono, "Cifra Monoalfabética")
@@ -43,6 +45,7 @@ class CriptoApp(QWidget):
         self.tabs.addTab(tab_vigenere, "Cifra de Vigenère")
         self.tabs.addTab(tab_vernam, "Cifra de Vernam")
         self.tabs.addTab(tab_otp, "One-Time Pad")
+        self.tabs.addTab(tab_railfence, "Rail Fence")
         
         layout_principal.addWidget(self.tabs)
         self.setLayout(layout_principal)
@@ -518,6 +521,73 @@ class CriptoApp(QWidget):
 
             texto_decifrado = decifrar_otp(texto, chave)
             self.texto_output_otp.setText(texto_decifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro na chave: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def criar_tab_railfence(self):
+        widget_tab = QWidget()
+        layout_tab = QVBoxLayout(widget_tab)
+        
+        layout_chave = QFormLayout()
+        self.chave_railfence_input = QLineEdit()
+        self.chave_railfence_input.setPlaceholderText("Digite o número de trilhos")
+        layout_chave.addRow(QLabel("Chave (Trilhos):"), self.chave_railfence_input)
+        
+        layout_tab.addLayout(layout_chave)
+
+        self.texto_input_railfence = QTextEdit()
+        self.texto_input_railfence.setPlaceholderText("Digite o texto aqui...")
+        layout_tab.addWidget(QLabel("Texto:"))
+        layout_tab.addWidget(self.texto_input_railfence)
+
+        self.texto_output_railfence = QTextEdit()
+        self.texto_output_railfence.setPlaceholderText("O resultado aparecerá aqui...")
+        self.texto_output_railfence.setReadOnly(True)
+        layout_tab.addWidget(QLabel("Texto Cifrado / Decifrado:"))
+        layout_tab.addWidget(self.texto_output_railfence)
+
+        botoes_layout = QHBoxLayout()
+        cifrar_btn = QPushButton("Cifrar")
+        decifrar_btn = QPushButton("Decifrar")
+        
+        botoes_layout.addWidget(cifrar_btn)
+        botoes_layout.addWidget(decifrar_btn)
+        layout_tab.addLayout(botoes_layout)
+
+        cifrar_btn.clicked.connect(self.on_cifrar_railfence)
+        decifrar_btn.clicked.connect(self.on_decifrar_railfence)
+        
+        return widget_tab
+
+    def on_cifrar_railfence(self):
+        try:
+            texto = self.texto_input_railfence.toPlainText()
+            chave = self.chave_railfence_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio.")
+                return
+                
+            texto_cifrado = cifrar_railfence(texto, chave)
+            self.texto_output_railfence.setText(texto_cifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro na chave: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def on_decifrar_railfence(self):
+        try:
+            texto = self.texto_input_railfence.toPlainText()
+            chave = self.chave_railfence_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio para decifrar.")
+                return
+
+            texto_decifrado = decifrar_railfence(texto, chave)
+            self.texto_output_railfence.setText(texto_decifrado)
         except ValueError as ve:
             self.mostrar_erro(f"Erro na chave: {ve}")
         except Exception as e:
