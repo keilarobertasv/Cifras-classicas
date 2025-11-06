@@ -17,6 +17,7 @@ from cifras.otp import cifrar as cifrar_otp, decifrar as decifrar_otp
 from cifras.railfence import cifrar as cifrar_railfence, decifrar as decifrar_railfence
 from cifras.transcolunas import cifrar as cifrar_colunar, decifrar as decifrar_colunar
 from cifras.doubletrans import cifrar as cifrar_doubletrans, decifrar as decifrar_doubletrans
+from cifras.keycipher import cifrar as cifrar_keycipher, decifrar as decifrar_keycipher
 
 class CriptoApp(QWidget):
     def __init__(self):
@@ -41,6 +42,7 @@ class CriptoApp(QWidget):
         tab_railfence = self.criar_tab_railfence()
         tab_colunar = self.criar_tab_colunar()
         tab_doubletrans = self.criar_tab_doubletrans()
+        tab_keycipher = self.criar_tab_keycipher()
         
         self.tabs.addTab(tab_cesar, "Cifra de César")
         self.tabs.addTab(tab_mono, "Cifra Monoalfabética")
@@ -52,6 +54,7 @@ class CriptoApp(QWidget):
         self.tabs.addTab(tab_railfence, "Rail Fence")
         self.tabs.addTab(tab_colunar, "Transposição Colunar")
         self.tabs.addTab(tab_doubletrans, "Dupla Transposição")
+        self.tabs.addTab(tab_keycipher, "KeyCipher")
         
         layout_principal.addWidget(self.tabs)
         self.setLayout(layout_principal)
@@ -734,6 +737,79 @@ class CriptoApp(QWidget):
 
             texto_decifrado = decifrar_doubletrans(texto, chave1, chave2)
             self.texto_output_doubletrans.setText(texto_decifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro nas chaves: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def criar_tab_keycipher(self):
+        widget_tab = QWidget()
+        layout_tab = QVBoxLayout(widget_tab)
+        
+        layout_chave = QFormLayout()
+        self.chave_keycipher_1_input = QLineEdit()
+        self.chave_keycipher_1_input.setPlaceholderText("Chave de Vigenère")
+        layout_chave.addRow(QLabel("Chave 1 (Vigenère):"), self.chave_keycipher_1_input)
+        
+        self.chave_keycipher_2_input = QLineEdit()
+        self.chave_keycipher_2_input.setPlaceholderText("Chave Colunar (letras únicas)")
+        layout_chave.addRow(QLabel("Chave 2 (Colunar):"), self.chave_keycipher_2_input)
+        
+        layout_tab.addLayout(layout_chave)
+
+        self.texto_input_keycipher = QTextEdit()
+        self.texto_input_keycipher.setPlaceholderText("Digite o texto aqui...")
+        layout_tab.addWidget(QLabel("Texto:"))
+        layout_tab.addWidget(self.texto_input_keycipher)
+
+        self.texto_output_keycipher = QTextEdit()
+        self.texto_output_keycipher.setPlaceholderText("O resultado aparecerá aqui...")
+        self.texto_output_keycipher.setReadOnly(True)
+        layout_tab.addWidget(QLabel("Texto Cifrado / Decifrado:"))
+        layout_tab.addWidget(self.texto_output_keycipher)
+
+        botoes_layout = QHBoxLayout()
+        cifrar_btn = QPushButton("Cifrar")
+        decifrar_btn = QPushButton("Decifrar")
+        
+        botoes_layout.addWidget(cifrar_btn)
+        botoes_layout.addWidget(decifrar_btn)
+        layout_tab.addLayout(botoes_layout)
+
+        cifrar_btn.clicked.connect(self.on_cifrar_keycipher)
+        decifrar_btn.clicked.connect(self.on_decifrar_keycipher)
+        
+        return widget_tab
+
+    def on_cifrar_keycipher(self):
+        try:
+            texto = self.texto_input_keycipher.toPlainText()
+            chave1 = self.chave_keycipher_1_input.text()
+            chave2 = self.chave_keycipher_2_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio.")
+                return
+                
+            texto_cifrado = cifrar_keycipher(texto, chave1, chave2)
+            self.texto_output_keycipher.setText(texto_cifrado)
+        except ValueError as ve:
+            self.mostrar_erro(f"Erro nas chaves: {ve}")
+        except Exception as e:
+            self.mostrar_erro(f"Erro inesperado: {e}")
+
+    def on_decifrar_keycipher(self):
+        try:
+            texto = self.texto_input_keycipher.toPlainText()
+            chave1 = self.chave_keycipher_1_input.text()
+            chave2 = self.chave_keycipher_2_input.text()
+            
+            if not texto:
+                self.mostrar_erro("O campo 'Texto' não pode estar vazio para decifrar.")
+                return
+
+            texto_decifrado = decifrar_keycipher(texto, chave1, chave2)
+            self.texto_output_keycipher.setText(texto_decifrado)
         except ValueError as ve:
             self.mostrar_erro(f"Erro nas chaves: {ve}")
         except Exception as e:
