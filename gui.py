@@ -2,7 +2,7 @@ import sys
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QTextEdit, QLineEdit,
-    QMessageBox, QTabWidget, QFormLayout
+    QMessageBox, QTabWidget, QFormLayout, QSplitter
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
@@ -19,18 +19,36 @@ from cifras.transcolunas import cifrar as cifrar_colunar, decifrar as decifrar_c
 from cifras.doubletrans import cifrar as cifrar_doubletrans, decifrar as decifrar_doubletrans
 from cifras.keycipher import cifrar as cifrar_keycipher, decifrar as decifrar_keycipher
 
+from criptoanalise.criptoanalise import calcular_frequencia
+from criptoanalise.analise_grafico import GraficoFrequencia
+
 class CriptoApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Cifras Clássicas')
         self.setWindowIcon(QIcon('icon.png')) 
-        self.resize(600, 500)
+        self.resize(700, 700)
         self.initUI()
 
     def initUI(self):
         layout_principal = QVBoxLayout()
         
-        self.tabs = QTabWidget()
+        self.main_tabs = QTabWidget()
+        
+        tab_cifragem = self.criar_aba_cifragem()
+        tab_analise = self.criar_aba_criptoanalise()
+        
+        self.main_tabs.addTab(tab_cifragem, "Cifras")
+        self.main_tabs.addTab(tab_analise, "Criptoanálise")
+        
+        layout_principal.addWidget(self.main_tabs)
+        self.setLayout(layout_principal)
+        
+    def criar_aba_cifragem(self):
+        widget_aba = QWidget()
+        layout_aba = QVBoxLayout(widget_aba)
+        
+        self.cipher_tabs = QTabWidget()
         
         tab_cesar = self.criar_tab_cesar()
         tab_mono = self.criar_tab_monoalfabetica()
@@ -44,20 +62,71 @@ class CriptoApp(QWidget):
         tab_doubletrans = self.criar_tab_doubletrans()
         tab_keycipher = self.criar_tab_keycipher()
         
-        self.tabs.addTab(tab_cesar, "Cifra de César")
-        self.tabs.addTab(tab_mono, "Cifra Monoalfabética")
-        self.tabs.addTab(tab_playfair, "Cifra de Playfair")
-        self.tabs.addTab(tab_hill, "Cifra de Hill")
-        self.tabs.addTab(tab_vigenere, "Cifra de Vigenère")
-        self.tabs.addTab(tab_vernam, "Cifra de Vernam")
-        self.tabs.addTab(tab_otp, "One-Time Pad")
-        self.tabs.addTab(tab_railfence, "Rail Fence")
-        self.tabs.addTab(tab_colunar, "Transposição Colunar")
-        self.tabs.addTab(tab_doubletrans, "Dupla Transposição")
-        self.tabs.addTab(tab_keycipher, "KeyCipher")
+        self.cipher_tabs.addTab(tab_cesar, "Cifra de César")
+        self.cipher_tabs.addTab(tab_mono, "Cifra Monoalfabética")
+        self.cipher_tabs.addTab(tab_playfair, "Cifra de Playfair")
+        self.cipher_tabs.addTab(tab_hill, "Cifra de Hill")
+        self.cipher_tabs.addTab(tab_vigenere, "Cifra de Vigenère")
+        self.cipher_tabs.addTab(tab_vernam, "Cifra de Vernam")
+        self.cipher_tabs.addTab(tab_otp, "One-Time Pad")
+        self.cipher_tabs.addTab(tab_railfence, "Rail Fence")
+        self.cipher_tabs.addTab(tab_colunar, "Transposição Colunar")
+        self.cipher_tabs.addTab(tab_doubletrans, "Dupla Transposição")
+        self.cipher_tabs.addTab(tab_keycipher, "KeyCipher")
         
-        layout_principal.addWidget(self.tabs)
-        self.setLayout(layout_principal)
+        layout_aba.addWidget(self.cipher_tabs)
+        return widget_aba
+
+    def criar_aba_criptoanalise(self):
+        widget_aba = QWidget()
+        layout_aba = QVBoxLayout(widget_aba)
+
+        layout_textos = QHBoxLayout()
+        
+        layout_texto1 = QVBoxLayout()
+        self.texto_analise_1 = QTextEdit()
+        self.texto_analise_1.setPlaceholderText("Cole o Texto Original aqui...")
+        layout_texto1.addWidget(QLabel("Texto 1 (Original):"))
+        layout_texto1.addWidget(self.texto_analise_1)
+        
+        layout_texto2 = QVBoxLayout()
+        self.texto_analise_2 = QTextEdit()
+        self.texto_analise_2.setPlaceholderText("Cole o Texto Cifrado aqui...")
+        layout_texto2.addWidget(QLabel("Texto 2 (Cifrado):"))
+        layout_texto2.addWidget(self.texto_analise_2)
+        
+        layout_textos.addLayout(layout_texto1)
+        layout_textos.addLayout(layout_texto2)
+        
+        layout_aba.addLayout(layout_textos)
+
+        layout_graficos = QHBoxLayout()
+        self.grafico_1 = GraficoFrequencia()
+        self.grafico_2 = GraficoFrequencia()
+        layout_graficos.addWidget(self.grafico_1)
+        layout_graficos.addWidget(self.grafico_2)
+        
+        layout_aba.addLayout(layout_graficos)
+
+        self.analisar_btn = QPushButton("Analisar Frequência")
+        self.analisar_btn.clicked.connect(self.on_analisar_frequencia)
+        layout_aba.addWidget(self.analisar_btn)
+        
+        return widget_aba
+        
+    def on_analisar_frequencia(self):
+        texto1 = self.texto_analise_1.toPlainText()
+        texto2 = self.texto_analise_2.toPlainText()
+        
+        if not texto1 and not texto2:
+            self.mostrar_erro("Preencha pelo menos um dos campos de texto.")
+            return
+
+        frequencia1, total1 = calcular_frequencia(texto1)
+        frequencia2, total2 = calcular_frequencia(texto2)
+        
+        self.grafico_1.atualizar_grafico(frequencia1, "Frequência do Texto 1", total1)
+        self.grafico_2.atualizar_grafico(frequencia2, "Frequência do Texto 2", total2)
 
     def criar_tab_cesar(self):
         widget_tab = QWidget()
