@@ -22,6 +22,12 @@ from cifras.keycipher import cifrar as cifrar_keycipher, decifrar as decifrar_ke
 from criptoanalise.criptoanalise import calcular_frequencia
 from criptoanalise.analise_grafico import GraficoFrequencia
 
+from gerador_chaves import (
+    gerar_chave_cesar, gerar_chave_monoalfabetica, gerar_chave_playfair,
+    gerar_chave_hill, gerar_chave_vigenere, gerar_chave_vernam,
+    gerar_chave_otp, gerar_chave_railfence, gerar_chave_colunar
+)
+
 class CriptoApp(QWidget):
     def __init__(self):
         super().__init__()
@@ -151,17 +157,24 @@ class CriptoApp(QWidget):
         layout_tab.addWidget(self.texto_output_cesar)
 
         botoes_layout = QHBoxLayout()
+        gerar_btn = QPushButton("Gerar Chave")
         cifrar_btn = QPushButton("Cifrar")
         decifrar_btn = QPushButton("Decifrar")
         
+        botoes_layout.addWidget(gerar_btn)
+        botoes_layout.addStretch()
         botoes_layout.addWidget(cifrar_btn)
         botoes_layout.addWidget(decifrar_btn)
         layout_tab.addLayout(botoes_layout)
 
         cifrar_btn.clicked.connect(self.on_cifrar_cesar)
         decifrar_btn.clicked.connect(self.on_decifrar_cesar)
+        gerar_btn.clicked.connect(self.on_gerar_chave_cesar)
         
         return widget_tab
+        
+    def on_gerar_chave_cesar(self):
+        self.chave_cesar_input.setText(gerar_chave_cesar())
 
     def on_cifrar_cesar(self):
         try:
@@ -218,17 +231,24 @@ class CriptoApp(QWidget):
         layout_tab.addWidget(self.texto_output_mono)
 
         botoes_layout = QHBoxLayout()
+        gerar_btn = QPushButton("Gerar Chave")
         cifrar_btn = QPushButton("Cifrar")
         decifrar_btn = QPushButton("Decifrar")
         
+        botoes_layout.addWidget(gerar_btn)
+        botoes_layout.addStretch()
         botoes_layout.addWidget(cifrar_btn)
         botoes_layout.addWidget(decifrar_btn)
         layout_tab.addLayout(botoes_layout)
 
         cifrar_btn.clicked.connect(self.on_cifrar_mono)
         decifrar_btn.clicked.connect(self.on_decifrar_mono)
+        gerar_btn.clicked.connect(self.on_gerar_chave_mono)
         
         return widget_tab
+        
+    def on_gerar_chave_mono(self):
+        self.chave_mono_input.setText(gerar_chave_monoalfabetica())
 
     def on_cifrar_mono(self):
         try:
@@ -285,17 +305,24 @@ class CriptoApp(QWidget):
         layout_tab.addWidget(self.texto_output_playfair)
 
         botoes_layout = QHBoxLayout()
+        gerar_btn = QPushButton("Gerar Chave")
         cifrar_btn = QPushButton("Cifrar")
         decifrar_btn = QPushButton("Decifrar")
         
+        botoes_layout.addWidget(gerar_btn)
+        botoes_layout.addStretch()
         botoes_layout.addWidget(cifrar_btn)
         botoes_layout.addWidget(decifrar_btn)
         layout_tab.addLayout(botoes_layout)
 
         cifrar_btn.clicked.connect(self.on_cifrar_playfair)
         decifrar_btn.clicked.connect(self.on_decifrar_playfair)
+        gerar_btn.clicked.connect(self.on_gerar_chave_playfair)
         
         return widget_tab
+        
+    def on_gerar_chave_playfair(self):
+        self.chave_playfair_input.setText(gerar_chave_playfair())
 
     def on_cifrar_playfair(self):
         try:
@@ -357,17 +384,32 @@ class CriptoApp(QWidget):
         layout_tab.addWidget(self.texto_output_hill)
 
         botoes_layout = QHBoxLayout()
+        gerar_btn = QPushButton("Gerar Chave")
         cifrar_btn = QPushButton("Cifrar")
         decifrar_btn = QPushButton("Decifrar")
         
+        botoes_layout.addWidget(gerar_btn)
+        botoes_layout.addStretch()
         botoes_layout.addWidget(cifrar_btn)
         botoes_layout.addWidget(decifrar_btn)
         layout_tab.addLayout(botoes_layout)
 
         cifrar_btn.clicked.connect(self.on_cifrar_hill)
         decifrar_btn.clicked.connect(self.on_decifrar_hill)
+        gerar_btn.clicked.connect(self.on_gerar_chave_hill)
         
         return widget_tab
+        
+    def on_gerar_chave_hill(self):
+        m_str = self.m_hill_input.text()
+        if not m_str:
+            self.mostrar_erro("Digite o tamanho do bloco (m) antes de gerar a chave.")
+            return
+        try:
+            nova_chave = gerar_chave_hill(m_str)
+            self.chave_hill_input.setText(nova_chave)
+        except Exception as e:
+            self.mostrar_erro(f"Erro ao gerar chave: {e}")
 
     def on_cifrar_hill(self):
         try:
@@ -426,17 +468,24 @@ class CriptoApp(QWidget):
         layout_tab.addWidget(self.texto_output_vigenere)
 
         botoes_layout = QHBoxLayout()
+        gerar_btn = QPushButton("Gerar Chave")
         cifrar_btn = QPushButton("Cifrar")
         decifrar_btn = QPushButton("Decifrar")
         
+        botoes_layout.addWidget(gerar_btn)
+        botoes_layout.addStretch()
         botoes_layout.addWidget(cifrar_btn)
         botoes_layout.addWidget(decifrar_btn)
         layout_tab.addLayout(botoes_layout)
 
         cifrar_btn.clicked.connect(self.on_cifrar_vigenere)
         decifrar_btn.clicked.connect(self.on_decifrar_vigenere)
+        gerar_btn.clicked.connect(self.on_gerar_chave_vigenere)
         
         return widget_tab
+        
+    def on_gerar_chave_vigenere(self):
+        self.chave_vigenere_input.setText(gerar_chave_vigenere())
 
     def on_cifrar_vigenere(self):
         try:
@@ -493,17 +542,24 @@ class CriptoApp(QWidget):
         layout_tab.addWidget(self.texto_output_vernam)
 
         botoes_layout = QHBoxLayout()
+        gerar_btn = QPushButton("Gerar Chave")
         cifrar_btn = QPushButton("Cifrar")
         decifrar_btn = QPushButton("Decifrar")
         
+        botoes_layout.addWidget(gerar_btn)
+        botoes_layout.addStretch()
         botoes_layout.addWidget(cifrar_btn)
         botoes_layout.addWidget(decifrar_btn)
         layout_tab.addLayout(botoes_layout)
 
         cifrar_btn.clicked.connect(self.on_cifrar_vernam)
         decifrar_btn.clicked.connect(self.on_decifrar_vernam)
+        gerar_btn.clicked.connect(self.on_gerar_chave_vernam)
         
         return widget_tab
+        
+    def on_gerar_chave_vernam(self):
+        self.chave_vernam_input.setText(gerar_chave_vernam())
 
     def on_cifrar_vernam(self):
         try:
@@ -560,18 +616,32 @@ class CriptoApp(QWidget):
         layout_tab.addWidget(self.texto_output_otp)
 
         botoes_layout = QHBoxLayout()
+        gerar_btn = QPushButton("Gerar Chave")
         cifrar_btn = QPushButton("Cifrar")
         decifrar_btn = QPushButton("Decifrar")
         
+        botoes_layout.addWidget(gerar_btn)
+        botoes_layout.addStretch()
         botoes_layout.addWidget(cifrar_btn)
         botoes_layout.addWidget(decifrar_btn)
         layout_tab.addLayout(botoes_layout)
 
         cifrar_btn.clicked.connect(self.on_cifrar_otp)
         decifrar_btn.clicked.connect(self.on_decifrar_otp)
+        gerar_btn.clicked.connect(self.on_gerar_chave_otp)
         
         return widget_tab
-
+        
+    def on_gerar_chave_otp(self):
+        texto = self.texto_input_otp.toPlainText()
+        if not texto:
+            self.mostrar_erro("Digite o texto antes de gerar a chave OTP (ela precisa ter o mesmo tamanho).")
+            return
+        try:
+            self.chave_otp_input.setText(gerar_chave_otp(len(texto)))
+        except Exception as e:
+            self.mostrar_erro(f"Erro ao gerar chave: {e}")
+            
     def on_cifrar_otp(self):
         try:
             texto = self.texto_input_otp.toPlainText()
@@ -627,17 +697,24 @@ class CriptoApp(QWidget):
         layout_tab.addWidget(self.texto_output_railfence)
 
         botoes_layout = QHBoxLayout()
+        gerar_btn = QPushButton("Gerar Chave")
         cifrar_btn = QPushButton("Cifrar")
         decifrar_btn = QPushButton("Decifrar")
         
+        botoes_layout.addWidget(gerar_btn)
+        botoes_layout.addStretch()
         botoes_layout.addWidget(cifrar_btn)
         botoes_layout.addWidget(decifrar_btn)
         layout_tab.addLayout(botoes_layout)
 
         cifrar_btn.clicked.connect(self.on_cifrar_railfence)
         decifrar_btn.clicked.connect(self.on_decifrar_railfence)
+        gerar_btn.clicked.connect(self.on_gerar_chave_railfence)
         
         return widget_tab
+        
+    def on_gerar_chave_railfence(self):
+        self.chave_railfence_input.setText(gerar_chave_railfence())
 
     def on_cifrar_railfence(self):
         try:
@@ -694,17 +771,24 @@ class CriptoApp(QWidget):
         layout_tab.addWidget(self.texto_output_colunar)
 
         botoes_layout = QHBoxLayout()
+        gerar_btn = QPushButton("Gerar Chave")
         cifrar_btn = QPushButton("Cifrar")
         decifrar_btn = QPushButton("Decifrar")
         
+        botoes_layout.addWidget(gerar_btn)
+        botoes_layout.addStretch()
         botoes_layout.addWidget(cifrar_btn)
         botoes_layout.addWidget(decifrar_btn)
         layout_tab.addLayout(botoes_layout)
 
         cifrar_btn.clicked.connect(self.on_cifrar_colunar)
         decifrar_btn.clicked.connect(self.on_decifrar_colunar)
+        gerar_btn.clicked.connect(self.on_gerar_chave_colunar)
         
         return widget_tab
+        
+    def on_gerar_chave_colunar(self):
+        self.chave_colunar_input.setText(gerar_chave_colunar())
 
     def on_cifrar_colunar(self):
         try:
@@ -765,17 +849,25 @@ class CriptoApp(QWidget):
         layout_tab.addWidget(self.texto_output_doubletrans)
 
         botoes_layout = QHBoxLayout()
+        gerar_btn = QPushButton("Gerar Chaves")
         cifrar_btn = QPushButton("Cifrar")
         decifrar_btn = QPushButton("Decifrar")
         
+        botoes_layout.addWidget(gerar_btn)
+        botoes_layout.addStretch()
         botoes_layout.addWidget(cifrar_btn)
         botoes_layout.addWidget(decifrar_btn)
         layout_tab.addLayout(botoes_layout)
 
         cifrar_btn.clicked.connect(self.on_cifrar_doubletrans)
         decifrar_btn.clicked.connect(self.on_decifrar_doubletrans)
+        gerar_btn.clicked.connect(self.on_gerar_chave_doubletrans)
         
         return widget_tab
+        
+    def on_gerar_chave_doubletrans(self):
+        self.chave_doubletrans_1_input.setText(gerar_chave_colunar())
+        self.chave_doubletrans_2_input.setText(gerar_chave_colunar())
 
     def on_cifrar_doubletrans(self):
         try:
@@ -838,17 +930,25 @@ class CriptoApp(QWidget):
         layout_tab.addWidget(self.texto_output_keycipher)
 
         botoes_layout = QHBoxLayout()
+        gerar_btn = QPushButton("Gerar Chaves")
         cifrar_btn = QPushButton("Cifrar")
         decifrar_btn = QPushButton("Decifrar")
         
+        botoes_layout.addWidget(gerar_btn)
+        botoes_layout.addStretch()
         botoes_layout.addWidget(cifrar_btn)
         botoes_layout.addWidget(decifrar_btn)
         layout_tab.addLayout(botoes_layout)
 
         cifrar_btn.clicked.connect(self.on_cifrar_keycipher)
         decifrar_btn.clicked.connect(self.on_decifrar_keycipher)
+        gerar_btn.clicked.connect(self.on_gerar_chave_keycipher)
         
         return widget_tab
+        
+    def on_gerar_chave_keycipher(self):
+        self.chave_keycipher_1_input.setText(gerar_chave_vigenere())
+        self.chave_keycipher_2_input.setText(gerar_chave_colunar())
 
     def on_cifrar_keycipher(self):
         try:
